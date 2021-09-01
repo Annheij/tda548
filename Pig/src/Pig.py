@@ -4,6 +4,7 @@
 #  *
 #  */
 
+#Detta är Atosas kommentar <3
 
 def run():
     win_points = 20  # Points to win (decrease if testing)
