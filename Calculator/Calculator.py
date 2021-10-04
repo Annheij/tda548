@@ -20,7 +20,9 @@ from enum import Enum
 #
 # To run the program, run either CalculatorREPL or CalculatorGUI
 
-MISSING_OPERAND:  str = "Missing or b operand"
+
+MISSING_OPERAND:  str = "Missing or bad operand"
+MISSING_OPERAND:  str = "Missing or bad operand"
 DIV_BY_ZERO:      str = "Division with 0"
 MISSING_OPERATOR: str = "Missing operator or parenthesis"
 OP_NOT_FOUND:     str = "Operator not found"

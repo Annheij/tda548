@@ -1,8 +1,9 @@
+import random
 from typing import List
 from enum import Enum, auto
-from random import *
-
+import numpy
 import pygame as pg
+import time
 
 
 #  Program to simulate segregation.
@@ -18,15 +19,15 @@ class Actor(Enum):
 
 # Enumeration type for the state of an Actor
 class State(Enum):
-    UNSATISFIED = auto()
-    SATISFIED = auto()
+    BLUE_UNSATISFIED = auto()
+    RED_UNSATISFIED = auto()
     NA = auto()  # Not applicable (NA), used for NONEs
 
 
 World = List[List[Actor]]  # Type alias
 
 
-SIZE = 30
+SIZE = 400
 
 
 def neighbours():
@@ -39,24 +40,124 @@ def neighbours():
 class NeighborsModel:
 
     # Tune these numbers to test different distributions or update speeds
-    FRAME_RATE = 20            # Increase number to speed simulation up
+    FRAME_RATE = 1000            # Increase number to speed simulation up
     DIST = [0.25, 0.25, 0.50]  # % of RED, BLUE, and NONE
     THRESHOLD = 0.7            # % of surrounding neighbours that should be like me for satisfaction
-
+    UNSATISFIED_COUNTER = 0
     # ########### These following two methods are what you're supposed to implement  ###########
     # In this method you should generate a new world
     # using randomization according to the given arguments.
     @staticmethod
     def __create_world(size) -> World:
-        # TODO Create and populate world according to self.DIST distribution parameters
+        time_start = time.time()
+        amount_of_red = [1]*(round(((size * size)-1) * NeighborsModel.DIST[0]))
+        blue = [2]*(round(((size * size)-1)*NeighborsModel.DIST[1]))
+        none = [3]*(round(((size * size)-1)*NeighborsModel.DIST[2]))
+        generated_world = amount_of_red + blue + none
+        for placement in range(0, len(generated_world)):
+            if generated_world[int(placement)] == 1:
+                generated_world[placement] = Actor.BLUE
+            elif generated_world[int(placement)] == 2:
+                generated_world[int(placement)] = Actor.RED
+            else:
+                generated_world[placement] = Actor.NONE
+        random.shuffle(generated_world)
         brave_new_world = []
+        for _ in range(size):
+            brave_new_world.append(generated_world[0:size])
+            del generated_world[0:size]
+        print(time.time()-time_start)
         return brave_new_world
 
     # This is the method called by the timer to update the world
     # (i.e move unsatisfied) each "frame".
     def __update_world(self):
-        # TODO Update logical state of world based on self.THRESHOLD satisfaction parameter
-        pass
+        self.UNSATISFIED_COUNTER = 0
+        for row in range(0, len(self.world)):
+            for col in range(0, len(self.world)):
+                if self.world[row][col] != Actor.NONE:
+                    list_of_neighbours = self.check_neighbors(row, col)
+                    self.calculate_satisfaction(list_of_neighbours, row, col)
+        self.move_world()
+
+    def check_neighbors(self, row, col):
+        list_of_neighbours = []
+        for n_row in range(-1, 2):
+            for n_col in range(-1, 2):
+                if is_valid_location(len(self.world), n_row, n_col, row, col):
+                    list_of_neighbours.append(self.world[row-n_row][col-n_col])
+        return list_of_neighbours
+
+    def move_world(self):
+        list_to_place = []
+        place_to_place = self.find_empty()
+        for row in range(0, len(self.world)):
+            for col in range(0, len(self.world)):
+                if self.world[row][col] == State.BLUE_UNSATISFIED:
+                    place_to_place.append([row, col])
+                    list_to_place.append(Actor.BLUE)
+                    self.world[row][col] = Actor.NONE
+                    self.UNSATISFIED_COUNTER -= 1
+                elif self.world[row][col] == State.RED_UNSATISFIED:
+                    place_to_place.append([row, col])
+                    list_to_place.append(Actor.RED)
+                    self.world[row][col] = Actor.NONE
+                    self.UNSATISFIED_COUNTER -= 1
+        random.shuffle(list_to_place)
+        random.shuffle(place_to_place)
+        i = 0
+        for place in list_to_place:
+            self.world[place_to_place[i][0]][place_to_place[i][1]] = place
+            i += 1
+
+    def calculate_satisfaction(self, n_list, row, col):
+
+        if self.world[row][col] == Actor.BLUE:
+            good_neighbours = n_list.count(Actor.BLUE) + n_list.count(State.BLUE_UNSATISFIED)
+            bad_neighbours = n_list.count(Actor.RED) + n_list.count(State.RED_UNSATISFIED)
+            if good_neighbours + bad_neighbours == 0:
+                self.world[row][col] = State.BLUE_UNSATISFIED
+            elif good_neighbours / (good_neighbours + bad_neighbours) > self.THRESHOLD:
+                self.world[row][col] = Actor.BLUE
+            else:
+                self.world[row][col] = State.BLUE_UNSATISFIED
+        elif self.world[row][col] == Actor.RED:
+            bad_neighbours = n_list.count(Actor.BLUE) + n_list.count(State.BLUE_UNSATISFIED)
+            good_neighbours = n_list.count(Actor.RED) + n_list.count(State.RED_UNSATISFIED)
+            if good_neighbours + bad_neighbours == 0:
+                self.world[row][col] = State.RED_UNSATISFIED
+            elif good_neighbours / (good_neighbours + bad_neighbours) > self.THRESHOLD:
+                self.world[row][col] = Actor.RED
+            else:
+                self.world[row][col] = State.RED_UNSATISFIED
+        elif self.world[row][col] == Actor.NONE:
+            self.world = Actor.NONE
+
+
+    def threshold_pick(self, row, col, blue, red, x):
+        if self.world[row][col] == Actor.BLUE:
+            satisfaction = int((blue / (blue + red)))
+            return satisfaction
+        elif self.world[row][col] == Actor.RED:
+            satisfaction = int((red / (red + blue)))
+            return satisfaction
+        return 1
+
+    def state_pick(self, row, col, x):
+        if x == 1:
+            return self.world[row][col]
+        if self.world[row][col] == Actor.BLUE:
+            return State.BLUE_UNSATISFIED
+        elif self.world[row][col] == Actor.RED:
+            return State.RED_UNSATISFIED
+
+    def find_empty(self):
+        empty_spaces = []
+        for row in range(0, len(self.world)):
+            for col in range(0, len(self.world)):
+                if self.world[row][col] == Actor.NONE:
+                    empty_spaces.append([row, col])
+        return empty_spaces
 
     # ########### the rest of this class is already defined, to handle the simulation clock  ###########
     def __init__(self, size):
@@ -103,8 +204,11 @@ class NeighborsModel:
 # ---------------- Helper methods ---------------------
 
 # Check if inside world
-def is_valid_location(size: int, row: int, col: int):
-    return 0 <= row < size and 0 <= col < size
+def is_valid_location(size: int, row: int, col: int, p_row: int, p_col: int):
+    if p_row-row == p_row and p_col-col == col:
+        return False
+    else:
+        return 0 <= p_row-row < size and 0 <= p_col-col < size
 
 
 # ------- Testing -------------------------------------
@@ -122,10 +226,10 @@ def test():
     th = 0.5  # Simpler threshold used for testing
 
     size = len(test_world)
-    print(is_valid_location(size, 0, 0))
-    print(not is_valid_location(size, -1, 0))
-    print(not is_valid_location(size, 0, 3))
-    print(is_valid_location(size, 2, 2))
+    print(is_valid_location(size, 0, 0, 0, 0))
+    print(not is_valid_location(size, -1, 0, 0, 0))
+    print(not is_valid_location(size, 0, 3, 0, 0))
+    print(is_valid_location(size, 2, 2, 0, 0))
 
     # TODO More tests
 
@@ -145,9 +249,9 @@ def count(a_list, to_find):
 # ... but by all means have a look at it, it's fun!
 class NeighboursView:
     # static class variables
-    WIDTH = 400   # Size for window
-    HEIGHT = 400
-    MARGIN = 50
+    WIDTH = 800   # Size for window
+    HEIGHT = 800
+    MARGIN = 1
 
     WHITE = (255, 255, 255)
     RED   = (255,   0,   0)
