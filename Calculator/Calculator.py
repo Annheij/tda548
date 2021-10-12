@@ -52,15 +52,17 @@ def infix_to_postfix(infix):
 
 # -----  Evaluate RPN expression -------------------
 def eval_postfix(postfix_tokens):
-    postfix = []
-    postfix_last = []
+    postfix_stack = []
     for _ in range(len(postfix_tokens)):
         if not isinstance(postfix_tokens[_], int):
-            d1, d2 = find_d(postfix_tokens, _)
-            postfix += apply_operator(postfix_tokens[_], postfix_tokens[_-1], postfix_tokens[_-2])
-            postfix_last =
+            d1 = postfix_stack.pop()
+            d2 = postfix_stack.pop()
+            postfix_stack.append(apply_operator(postfix_tokens[_], d1, d2))
             pass
-    return postfix  # TODO
+        else:
+            postfix_stack.append(postfix_tokens[_])
+    postfix_evaluated = sum(postfix_stack)
+    return postfix_evaluated  # TODO
 
 
 # Method used in REPL

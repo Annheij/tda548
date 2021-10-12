@@ -15,8 +15,9 @@ def test():
 
     input = output
     output = Calculator.eval_postfix(input)
-    print(output == 558)
+    print(output == 582)
 
-
+        #Bongiorno you sweet sexy man
 if __name__ == "__main__":
     test()
+    print("Goodbye you sexy bitch")
