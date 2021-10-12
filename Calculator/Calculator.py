@@ -47,7 +47,8 @@ def eval_postfix(postfix_tokens):
 def eval_expr(expr: str):
     if len(expr) == 0:
         return nan
-    infix = tokenize(expr)
+    infix_prereference = tokenize(expr)
+    infix = give_reference(infix_prereference)
     postfix_tokens = infix_to_postfix(infix)
     return eval_postfix(postfix_tokens)
 
@@ -91,18 +92,38 @@ def get_associativity(op: str):
 # ---------- Tokenize -----------------------
 def tokenize(expr: str):
     infix_prereference = []
-    infix = []
     for _ in expr:
         infix_prereference.append(_)
+    return infix_prereference   # TODO
+
+def give_reference(infix_prereference):
     infix_place = 0
     infix_place_last = 0
+    infix_seperated = []
     infix_prereference.append('=')
     for _ in infix_prereference:
-        if _ in '+-*/^=':
-            infix.append(infix_prereference[infix_place_last:infix_place])
-            infix.append(_)
+        if _ in '+-*/^=()':
+            infix_seperated.append(infix_prereference[infix_place_last:infix_place])
+            infix_seperated.append(_)
             infix_place_last = infix_place + 1
         infix_place += 1
-    del infix[-1]
-    return infix   # TODO
+
+    infix_combined = []
+    for _ in range(0, len(infix_seperated)):
+        if not len(infix_seperated[_]) == 0:
+            infix_combined.append(infix_seperated[_])
+    del infix_combined[-1]
+
+    placeholder = []
+    for num in range(0, len(infix_combined)):
+        if isinstance(infix_combined[num], list):
+            for str_to_int in range(0, len(infix_combined[num])):
+                infix_combined[num][str_to_int] = infix_combined[num][str_to_int]
+                placeholder.append(infix_combined[num][str_to_int])
+            for list_to_int in range(1, len(placeholder)):
+                placeholder[0] += placeholder[list_to_int]
+            infix_combined[num] = int(placeholder[0])
+            placeholder = []
+    return infix_combined
+
 # TODO Possibly more methods
