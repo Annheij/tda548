@@ -29,18 +29,31 @@ OPERATORS:        str = "+-*/^"
 
 
 def infix_to_postfix(infix):
-    postfix_operand = []
     postfix = []
-    token_place = 0
-    for token in infix:
-        if token in ('+-*/^'):
-            pass
-    return postfix  # TODO
+    stack = []
+    for _ in infix:
+        if isinstance(_, int):
+            postfix.append(_)
+        elif _ == '(':
+            stack.append(_)
+        elif _ == ')':
+             while stack and stack[-1]!= '(':
+                postfix.append(stack.pop())
+             stack.pop()
+        else:
+                while stack and stack[-1]!='(' and get_precedence(_)<=get_precedence(stack[-1]):
+                    postfix.append(stack.pop())
+                stack.append(_)
+    while stack:                                                   #För att tömma stacken
+        postfix.append(stack.pop())
+    return postfix
 
+#
 
 # -----  Evaluate RPN expression -------------------
 def eval_postfix(postfix_tokens):
-    return 0  # TODO
+    
+    return postfix  # TODO
 
 
 # Method used in REPL
@@ -66,11 +79,11 @@ def apply_operator(op: str, d1: float, d2: float):
 
 def get_precedence(op: str):
     op_switcher = {
-        "+": 2,
-        "-": 2,
-        "*": 3,
-        "/": 3,
-        "^": 4
+        '+': 2,
+        '-': 2,
+        '*': 3,
+        '/': 3,
+        '^': 4
     }
     return op_switcher.get(op, ValueError(OP_NOT_FOUND))
 
