@@ -52,7 +52,14 @@ def infix_to_postfix(infix):
 
 # -----  Evaluate RPN expression -------------------
 def eval_postfix(postfix_tokens):
-    
+    postfix = []
+    postfix_last = []
+    for _ in range(len(postfix_tokens)):
+        if not isinstance(postfix_tokens[_], int):
+            d1, d2 = find_d(postfix_tokens, _)
+            postfix += apply_operator(postfix_tokens[_], postfix_tokens[_-1], postfix_tokens[_-2])
+            postfix_last =
+            pass
     return postfix  # TODO
 
 
@@ -66,7 +73,7 @@ def eval_expr(expr: str):
     return eval_postfix(postfix_tokens)
 
 
-def apply_operator(op: str, d1: float, d2: float):
+def apply_operator(op: str, d1: int, d2: int):
     op_switcher = {
         "+": d1 + d2,
         "-": d2 - d1,
@@ -74,6 +81,7 @@ def apply_operator(op: str, d1: float, d2: float):
         "/": nan if d1 == 0 else d2 / d1,
         "^": d2 ** d1
     }
+
     return op_switcher.get(op, ValueError(OP_NOT_FOUND))
 
 
@@ -138,5 +146,17 @@ def give_reference(infix_prereference):
             infix_combined[num] = int(placeholder[0])
             placeholder = []
     return infix_combined
+
+def find_d(postfix, placement):
+    while not isinstance(postfix[placement], int):
+        placement -= 1
+    d1 = postfix[placement]
+    if not isinstance(postfix[placement-1], int):
+        while not isinstance(postfix[placement-1], int):
+            placement -= 1
+        d2 = postfix[placement]
+    else:
+        d2=postfix[placement-2]
+    return d1,d2
 
 # TODO Possibly more methods
