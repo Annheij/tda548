@@ -20,4 +20,3 @@ def test():
         #Bongiorno you sweet sexy man
 if __name__ == "__main__":
     test()
-    print("Goodbye you sexy bitch")

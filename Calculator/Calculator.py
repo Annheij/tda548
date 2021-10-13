@@ -21,11 +21,11 @@ from typing import List
 #
 # To run the program, run either CalculatorREPL or CalculatorGUI
 
-MISSING_OPERAND:  str = "Missing or bad operand"
-DIV_BY_ZERO:      str = "Division with 0"
+MISSING_OPERAND: str = "Missing or bad operand"
+DIV_BY_ZERO: str = "Division with 0"
 MISSING_OPERATOR: str = "Missing operator or parenthesis"
-OP_NOT_FOUND:     str = "Operator not found"
-OPERATORS:        str = "+-*/^"
+OP_NOT_FOUND: str = "Operator not found"
+OPERATORS: str = "+-*/^"
 
 
 def infix_to_postfix(infix):
@@ -37,16 +37,17 @@ def infix_to_postfix(infix):
         elif _ == '(':
             stack.append(_)
         elif _ == ')':
-             while stack and stack[-1]!= '(':
+            while stack and stack[-1] != '(':
                 postfix.append(stack.pop())
-             stack.pop()
+            stack.pop()
         else:
-                while stack and stack[-1]!='(' and get_precedence(_)<=get_precedence(stack[-1]):
-                    postfix.append(stack.pop())
-                stack.append(_)
-    while stack:                                                   #För att tömma stacken
+            while stack and stack[-1] != '(' and get_precedence(_) <= get_precedence(stack[-1]):
+                postfix.append(stack.pop())
+            stack.append(_)
+    while stack:                                        # För att tömma stacken
         postfix.append(stack.pop())
     return postfix
+
 
 #
 
@@ -114,51 +115,57 @@ def get_associativity(op: str):
 
 # ---------- Tokenize -----------------------
 def tokenize(expr: str):
-    infix_prereference = []
-    for _ in expr:
-        infix_prereference.append(_)
-    return infix_prereference   # TODO
+    return list(expr)
+
 
 def give_reference(infix_prereference):
-    infix_place = 0
-    infix_place_last = 0
-    infix_seperated = []
-    infix_prereference.append('=')
-    for _ in infix_prereference:
-        if _ in '+-*/^=()':
-            infix_seperated.append(infix_prereference[infix_place_last:infix_place])
-            infix_seperated.append(_)
-            infix_place_last = infix_place + 1
-        infix_place += 1
+    infix_combined = combine_char(infix_prereference)
+    combine_int(infix_combined)
+    return infix_combined
 
-    infix_combined = []
-    for _ in range(0, len(infix_seperated)):
-        if not len(infix_seperated[_]) == 0:
-            infix_combined.append(infix_seperated[_])
-    del infix_combined[-1]
 
+def combine_int(infix_combined):
     placeholder = []
     for num in range(0, len(infix_combined)):
         if isinstance(infix_combined[num], list):
             for str_to_int in range(0, len(infix_combined[num])):
-                infix_combined[num][str_to_int] = infix_combined[num][str_to_int]
                 placeholder.append(infix_combined[num][str_to_int])
             for list_to_int in range(1, len(placeholder)):
                 placeholder[0] += placeholder[list_to_int]
             infix_combined[num] = int(placeholder[0])
             placeholder = []
+
+
+def combine_char(infix_prereference):
+    infix_place = 0
+    infix_place_last = 0
+    infix_seperated = []
+    infix_prereference.append('=')
+    for char in infix_prereference:
+        if char in '+-*/^=()':
+            infix_seperated.append(infix_prereference[infix_place_last:infix_place])
+            infix_seperated.append(char)
+            infix_place_last = infix_place + 1
+        infix_place += 1
+    infix_combined = []
+    for char in range(0, len(infix_seperated)):
+        if not len(infix_seperated[char]) == 0:
+            infix_combined.append(infix_seperated[char])
+    del infix_combined[-1]
     return infix_combined
+
 
 def find_d(postfix, placement):
     while not isinstance(postfix[placement], int):
         placement -= 1
     d1 = postfix[placement]
-    if not isinstance(postfix[placement-1], int):
-        while not isinstance(postfix[placement-1], int):
+    if not isinstance(postfix[placement - 1], int):
+        while not isinstance(postfix[placement - 1], int):
             placement -= 1
         d2 = postfix[placement]
     else:
-        d2=postfix[placement-2]
-    return d1,d2
+        d2 = postfix[placement - 2]
+    return d1, d2
+
 
 # TODO Possibly more methods

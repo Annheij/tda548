@@ -34,7 +34,7 @@ def get_input():
 
 
 def preamble():
-    print("Calculator v 1.0. To exit input bye")
+    print("Calculator v 6.9. To exit input bye")
 
 
 def goodbye():
