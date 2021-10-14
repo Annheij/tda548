@@ -28,7 +28,7 @@ OP_NOT_FOUND: str = "Operator not found"
 OPERATORS: str = "+-*/^"
 
 
-def infix_to_postfix(infix):
+def infix_to_postfix(infix):    #TODO
     postfix = []
     stack = []
     for _ in infix:
@@ -52,7 +52,7 @@ def infix_to_postfix(infix):
 #
 
 # -----  Evaluate RPN expression -------------------
-def eval_postfix(postfix_tokens):
+def eval_postfix(postfix_tokens):   #TODO
     postfix_stack = []
     for _ in range(len(postfix_tokens)):
         if not isinstance(postfix_tokens[_], int):
@@ -63,16 +63,16 @@ def eval_postfix(postfix_tokens):
         else:
             postfix_stack.append(postfix_tokens[_])
     postfix_evaluated = sum(postfix_stack)
-    return postfix_evaluated  # TODO
+    return postfix_evaluated
 
 
 # Method used in REPL
 def eval_expr(expr: str):
     if len(expr) == 0:
         return nan
-    infix_tokens = tokenize(expr)
-    infix = infix_str_to_int(infix_tokens)
-    postfix_tokens = infix_to_postfix(infix)
+    infix_tokens = tokenize(expr)   #TODO
+    infix = infix_str_to_int(infix_tokens)  #TODO
+    postfix_tokens = infix_to_postfix(infix)    #TODO
     return eval_postfix(postfix_tokens)
 
 
@@ -98,45 +98,26 @@ def get_precedence(op: str):
     }
     return op_switcher.get(op, ValueError(OP_NOT_FOUND))
 
-
-class Assoc(Enum):
-    LEFT = 1
-    RIGHT = 2
-
-
-def get_associativity(op: str):
-    if op in "+-*/":
-        return Assoc.LEFT
-    elif op in "^":
-        return Assoc.RIGHT
-    else:
-        return ValueError(OP_NOT_FOUND)
-
-
 # ---------- Tokenize -----------------------
-def tokenize(expr: str):
+def tokenize(expr: str):    #TODO
     return list(expr)
 
 
-def infix_str_to_int(infix_prereference):
+def infix_str_to_int(infix_prereference):   #TODO
     infix_separated = separate_char(infix_prereference)
     combine_int(infix_separated)
     return infix_separated
 
 
-def combine_int(infix_combined):
-    placeholder = []
+def combine_int(infix_combined):    #TODO
     for num in range(0, len(infix_combined)):
+        str_list = ['']
         if isinstance(infix_combined[num], list):
             for str_to_int in range(0, len(infix_combined[num])):
-                placeholder.append(infix_combined[num][str_to_int])
-            for list_to_int in range(1, len(placeholder)):
-                placeholder[0] += placeholder[list_to_int]
-            infix_combined[num] = int(placeholder[0])
-            placeholder = []
+                str_list[0] += infix_combined[num][str_to_int]
+            infix_combined[num] = int(str_list[0])
 
-
-def separate_char(infix_tokens):
+def separate_char(infix_tokens):    #TODO
     infix_separated = []
     infix_cut_start = 0
     infix_cut_end = 0
@@ -153,7 +134,7 @@ def separate_char(infix_tokens):
     return infix_separated
 
 
-def find_d(postfix, placement):
+def find_d(postfix, placement): #TODO
     while not isinstance(postfix[placement], int):
         placement -= 1
     d1 = postfix[placement]
@@ -164,6 +145,3 @@ def find_d(postfix, placement):
     else:
         d2 = postfix[placement - 2]
     return d1, d2
-
-
-# TODO Possibly more methods

@@ -32,7 +32,7 @@ class CalculatorGUI:
         expression_field.grid(columnspan=5, ipadx=70)
 
     def __setup_gui_window(self):
-        self.__gui.configure(background="cyan")
+        self.__gui.configure(background="black")
         self.__gui.title("Simple Calculator")
         self.__gui.geometry("290x130")
 
@@ -47,7 +47,7 @@ class CalculatorGUI:
         button.grid(row=row+2, column=col)
 
     def __create_button(self, text):
-        return Button(self.__gui, text=text, fg='black', bg='blue',
+        return Button(self.__gui, text=text, fg='black', bg='white',
                       command=lambda: self.__handle_command(text), height=1, width=7)
 
     # ---- Callback handlers for button presses ----
