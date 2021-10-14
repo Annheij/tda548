@@ -44,7 +44,7 @@ def infix_to_postfix(infix):
             while stack and stack[-1] != '(' and get_precedence(_) <= get_precedence(stack[-1]):
                 postfix.append(stack.pop())
             stack.append(_)
-    while stack:                                        # För att tömma stacken
+    while stack:
         postfix.append(stack.pop())
     return postfix
 
@@ -70,8 +70,8 @@ def eval_postfix(postfix_tokens):
 def eval_expr(expr: str):
     if len(expr) == 0:
         return nan
-    infix_prereference = tokenize(expr)
-    infix = give_reference(infix_prereference)
+    infix_tokens = tokenize(expr)
+    infix = infix_str_to_int(infix_tokens)
     postfix_tokens = infix_to_postfix(infix)
     return eval_postfix(postfix_tokens)
 
@@ -118,10 +118,10 @@ def tokenize(expr: str):
     return list(expr)
 
 
-def give_reference(infix_prereference):
-    infix_combined = combine_char(infix_prereference)
-    combine_int(infix_combined)
-    return infix_combined
+def infix_str_to_int(infix_prereference):
+    infix_separated = separate_char(infix_prereference)
+    combine_int(infix_separated)
+    return infix_separated
 
 
 def combine_int(infix_combined):
@@ -136,23 +136,21 @@ def combine_int(infix_combined):
             placeholder = []
 
 
-def combine_char(infix_prereference):
-    infix_place = 0
-    infix_place_last = 0
-    infix_seperated = []
-    infix_prereference.append('=')
-    for char in infix_prereference:
+def separate_char(infix_tokens):
+    infix_separated = []
+    infix_cut_start = 0
+    infix_cut_end = 0
+    infix_tokens.append('=')
+    for char in infix_tokens:
         if char in '+-*/^=()':
-            infix_seperated.append(infix_prereference[infix_place_last:infix_place])
-            infix_seperated.append(char)
-            infix_place_last = infix_place + 1
-        infix_place += 1
-    infix_combined = []
-    for char in range(0, len(infix_seperated)):
-        if not len(infix_seperated[char]) == 0:
-            infix_combined.append(infix_seperated[char])
-    del infix_combined[-1]
-    return infix_combined
+            infix_separated.append(infix_tokens[infix_cut_start:infix_cut_end])
+            if not infix_separated[-1]:
+                infix_separated.pop()
+            infix_separated.append(char)
+            infix_cut_start = infix_cut_end + 1
+        infix_cut_end += 1
+    infix_separated.pop()
+    return infix_separated
 
 
 def find_d(postfix, placement):
