@@ -31,19 +31,19 @@ OPERATORS: str = "+-*/^"
 def infix_to_postfix(infix):    #TODO
     postfix = []
     stack = []
-    for char in infix:
-        if isinstance(char, int):
-            postfix.append(char)
-        elif char == '(':
-            stack.append(char)
-        elif char == ')':
+    for _ in infix:
+        if isinstance(_, int):
+            postfix.append(_)
+        elif _ == '(':
+            stack.append(_)
+        elif _ == ')':
             while stack and stack[-1] != '(':
                 postfix.append(stack.pop())
             stack.pop()
         else:
-            while stack and stack[-1] != '(' and get_precedence(char) <= get_precedence(stack[-1]):
+            while stack and stack[-1] != '(' and get_precedence(_) <= get_precedence(stack[-1]):
                 postfix.append(stack.pop())
-            stack.append(char)
+            stack.append(_)
     while stack:
         postfix.append(stack.pop())
     return postfix
@@ -54,14 +54,14 @@ def infix_to_postfix(infix):    #TODO
 # -----  Evaluate RPN expression -------------------
 def eval_postfix(postfix_tokens):   #TODO
     postfix_stack = []
-    for _ in postfix_tokens:
-        if not isinstance(_, int):
+    for _ in range(len(postfix_tokens)):
+        if not isinstance(postfix_tokens[_], int):
             d1 = postfix_stack.pop()
             d2 = postfix_stack.pop()
-            postfix_stack.append(apply_operator(_, d1, d2))
+            postfix_stack.append(apply_operator(postfix_tokens[_], d1, d2))
             pass
         else:
-            postfix_stack.append(_)
+            postfix_stack.append(postfix_tokens[_])
     postfix_evaluated = sum(postfix_stack)
     return postfix_evaluated
 
@@ -117,7 +117,6 @@ def combine_int(infix_combined):    #TODO
                 str_list[0] += infix_combined[num][str_to_int]
             infix_combined[num] = int(str_list[0])
 
-
 def separate_char(infix_tokens):    #TODO
     infix_separated = []
     infix_cut_start = 0
@@ -135,4 +134,14 @@ def separate_char(infix_tokens):    #TODO
     return infix_separated
 
 
-
+def find_d(postfix, placement): #TODO
+    while not isinstance(postfix[placement], int):
+        placement -= 1
+    d1 = postfix[placement]
+    if not isinstance(postfix[placement - 1], int):
+        while not isinstance(postfix[placement - 1], int):
+            placement -= 1
+        d2 = postfix[placement]
+    else:
+        d2 = postfix[placement - 2]
+    return d1, d2
